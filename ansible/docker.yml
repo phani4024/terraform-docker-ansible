@@ -1,0 +1,32 @@
+---
+- hosts: all
+  connection: ssh
+  become: yes
+
+  tasks:
+    - name: update apt
+      command: apt update -y
+
+    # Install Docker
+    - name: Install Docker
+      apt: name=docker.io state=present
+
+    - name: start docker
+      service: name=docker state=started
+
+    - name: copy index.html file
+      copy:
+        src: index.html
+        dest: /home/ubuntu/
+
+    - name: copy docker file
+      copy:
+        src: Dockerfile
+        dest: /home/ubuntu/
+
+    - name: build docker image
+      command: docker build -t swiggy:v1 .
+
+    - name: create docker container
+      command: docker run -itd --name cont1 -p 8000:80 swiggy:v1
+
